@@ -1,0 +1,45 @@
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: chess-club-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: chess_club_db
+      MYSQL_USER: chessuser
+      MYSQL_PASSWORD: chesspassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chess-club-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: chess-club-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/chess_club_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: chessuser
+      SPRING_DATASOURCE_PASSWORD: chesspassword
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - chess-club-network
+
+volumes:
+  mysql_data:
+
+networks:
+  chess-club-network:
+    driver: bridge
