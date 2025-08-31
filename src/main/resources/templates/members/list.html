@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Members</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Members</h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">Manage chess club members and their rankings</p>
+            </div>
+            <a th:href="@{/members/new}" 
+               class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                <i class="fas fa-plus mr-2"></i> Add New Member
+            </a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="mt-6">
+            <form th:action="@{/members}" method="get" class="flex gap-2">
+                <div class="flex-1">
+                    <input type="text" name="search" th:value="${searchTerm}"
+                           placeholder="Search by name or surname..."
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <button type="submit" 
+                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a th:href="@{/members}" th:if="${searchTerm != null}"
+                   class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Members Table -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div th:if="${#lists.isEmpty(members)}" class="p-8 text-center">
+            <i class="fas fa-users text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-xl text-gray-500 dark:text-gray-400">No members found</p>
+            <p class="mt-2 text-gray-400 dark:text-gray-500">Add your first member to get started</p>
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(members)}" class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Rank
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Birthday
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Games Played
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr th:each="member : ${members}" 
+                        class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full"
+                                     th:classappend="${member.currentRank == 1} ? 'bg-yellow-100 dark:bg-yellow-900/50' : 
+                                                   (${member.currentRank == 2} ? 'bg-gray-100 dark:bg-gray-700' : 
+                                                   (${member.currentRank == 3} ? 'bg-orange-100 dark:bg-orange-900/50' : 
+                                                   'bg-gray-100 dark:bg-gray-700'))">
+                                    <span class="font-bold"
+                                          th:classappend="${member.currentRank == 1} ? 'text-yellow-600 dark:text-yellow-400' : 
+                                                        (${member.currentRank == 2} ? 'text-gray-600 dark:text-gray-400' : 
+                                                        (${member.currentRank == 3} ? 'text-orange-600 dark:text-orange-400' : 
+                                                        'text-gray-600 dark:text-gray-400'))"
+                                          th:text="${member.currentRank}">1</span>
+                                </div>
+                                <i th:if="${member.currentRank == 1}" class="fas fa-crown text-yellow-500 ml-2"></i>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                <a th:href="@{/members/{id}(id=${member.id})}" 
+                                   class="hover:text-primary-600 dark:hover:text-primary-400"
+                                   th:text="${member.fullName}">John Doe</a>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400" th:text="${member.email}">
+                                john@example.com
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400" 
+                                 th:text="${#temporals.format(member.birthday, 'MMM dd, yyyy')}">
+                                Jan 01, 1990
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white text-center" th:text="${member.gamesPlayed}">
+                                0
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <a th:href="@{/members/{id}(id=${member.id})}" 
+                                   class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                                   title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/members/{id}/edit(id=${member.id})}" 
+                                   class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{/members/{id}/delete(id=${member.id})}" method="post" 
+                                      class="inline" onsubmit="return confirm('Are you sure you want to delete this member?');">
+                                    <button type="submit" 
+                                            class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination Controls -->
+    <div th:if="${totalPages > 1}" class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            <!-- Previous Button -->
+            <a th:if="${hasPrevious}" 
+               th:href="@{/members(page=${currentPage - 1}, size=${pageSize}, search=${searchTerm})}"
+               class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            
+            <!-- Page Numbers -->
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:if="${totalPages <= 10 or (i >= currentPage - 2 and i <= currentPage + 2)}">
+                <a th:if="${i != currentPage}" 
+                   th:href="@{/members(page=${i}, size=${pageSize}, search=${searchTerm})}"
+                   th:text="${i + 1}"
+                   class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                </a>
+                <span th:if="${i == currentPage}" 
+                      th:text="${i + 1}"
+                      class="px-3 py-2 leading-tight text-primary-600 bg-primary-50 border border-primary-300 dark:bg-primary-900/50 dark:border-primary-600 dark:text-primary-300">
+                </span>
+            </span>
+            
+            <!-- Next Button -->
+            <a th:if="${hasNext}" 
+               th:href="@{/members(page=${currentPage + 1}, size=${pageSize}, search=${searchTerm})}"
+               class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Page Size Selector and Info -->
+    <div class="mt-4 flex flex-col sm:flex-row justify-between items-center">
+        <div class="mb-4 sm:mb-0">
+            <label class="text-sm text-gray-600 dark:text-gray-400 mr-2">Items per page:</label>
+            <select onchange="updatePageSize(this.value)" 
+                    class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                <option th:value="10" th:selected="${pageSize == 10}">10</option>
+                <option th:value="25" th:selected="${pageSize == 25}">25</option>
+                <option th:value="50" th:selected="${pageSize == 50}">50</option>
+                <option th:value="100" th:selected="${pageSize == 100}">100</option>
+            </select>
+        </div>
+        
+        <div th:if="${totalElements > 0}" class="text-sm text-gray-500 dark:text-gray-400">
+            Showing <span th:text="${(currentPage * pageSize) + 1}">1</span> - 
+            <span th:text="${((currentPage + 1) * pageSize) < totalElements ? ((currentPage + 1) * pageSize) : totalElements}">10</span> 
+            of <span th:text="${totalElements}">100</span> members
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePageSize(newSize) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('page', '0');
+    urlParams.set('size', newSize);
+    window.location.href = '/members?' + urlParams.toString();
+}
+</script>
+</body>
+</html>

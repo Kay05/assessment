@@ -1,106 +1,194 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      lang="en">
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Chess Club Admin</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Dark Mode Script -->
-    <script>
-        // Check for saved theme preference or default to 'light'
-        if (localStorage.getItem('theme') === 'dark' || 
-            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
-    
-    <style>
-        /* Custom animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        .dark ::-webkit-scrollbar-track {
-            background: #374151;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
+    <title>Home</title>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
-    
-    
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="animate-fadeIn">
-            <h1>Hello World</h1>
-        </div>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="bg-white dark:bg-gray-800 shadow-lg mt-auto">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
-                <p>&copy; 2024 Chess Club Administration System. All rights reserved.</p>
-                <p class="mt-1">Developed for Netstock Technical Assessment</p>
+<body>
+<div layout:fragment="content">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-xl p-8 mb-8 text-white">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">Welcome to Chess Club Admin</h1>
+                <p class="text-xl opacity-90">Manage members, track rankings, and record match results</p>
+            </div>
+            <div class="mt-6 md:mt-0 flex space-x-4">
+                <a th:href="@{/members/new}" 
+                   class="bg-white text-primary-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg">
+                    <i class="fas fa-user-plus mr-2"></i> Add Member
+                </a>
+                <a th:href="@{/matches/new}" 
+                   class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors shadow-lg">
+                    <i class="fas fa-chess mr-2"></i> Record Match
+                </a>
             </div>
         </div>
-    </footer>
+    </div>
     
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Members</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" th:text="${totalMembers}">0</p>
+                </div>
+                <div class="bg-primary-100 dark:bg-primary-900/50 p-3 rounded-full">
+                    <i class="fas fa-users text-2xl text-primary-600 dark:text-primary-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Matches Today</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" 
+                       th:text="${#lists.size(recentMatches.?[matchDate.toLocalDate() == T(java.time.LocalDate).now()])}">0</p>
+                </div>
+                <div class="bg-green-100 dark:bg-green-900/50 p-3 rounded-full">
+                    <i class="fas fa-chess-board text-2xl text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Current Champion</p>
+                    <p class="text-xl font-bold text-gray-900 dark:text-white" 
+                       th:text="${!#lists.isEmpty(leaderboard) ? leaderboard[0].fullName : 'No members yet'}">-</p>
+                </div>
+                <div class="bg-yellow-100 dark:bg-yellow-900/50 p-3 rounded-full">
+                    <i class="fas fa-crown text-2xl text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Top 10 Leaderboard -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i> Top 10 Rankings
+                    </h2>
+                    <a th:href="@{/leaderboard}" 
+                       class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                        View All <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div th:if="${#lists.isEmpty(leaderboard)}" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-users text-4xl mb-2"></i>
+                    <p>No members yet. Add some members to see the leaderboard.</p>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(leaderboard)}" class="space-y-3">
+                    <div th:each="member, iterStat : ${leaderboard}" 
+                         class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full"
+                                 th:classappend="${iterStat.index == 0} ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-600 dark:text-yellow-400' : 
+                                               (${iterStat.index == 1} ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400' : 
+                                               (${iterStat.index == 2} ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400' : 
+                                               'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'))">
+                                <span class="font-bold text-sm" th:text="${member.currentRank}">1</span>
+                            </div>
+                            <div>
+                                <a th:href="@{/members/{id}(id=${member.id})}" 
+                                   class="font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400">
+                                    <span th:text="${member.fullName}">Member Name</span>
+                                </a>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <span th:text="${member.gamesPlayed}">0</span> games played
+                                </p>
+                            </div>
+                        </div>
+                        <div th:if="${iterStat.index < 3}">
+                            <i th:class="${iterStat.index == 0} ? 'fas fa-trophy text-yellow-500' : 
+                                        (${iterStat.index == 1} ? 'fas fa-medal text-gray-400' : 
+                                        'fas fa-medal text-orange-500')"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Matches -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-history text-primary-500 mr-2"></i> Recent Matches
+                    </h2>
+                    <a th:href="@{/matches}" 
+                       class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                        View All <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div th:if="${#lists.isEmpty(recentMatches)}" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-chess text-4xl mb-2"></i>
+                    <p>No matches recorded yet. Record a match to see results here.</p>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(recentMatches)}" class="space-y-4">
+                    <div th:each="match : ${recentMatches}" 
+                         class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400" 
+                                      th:text="${#temporals.format(match.matchDate, 'MMM dd, HH:mm')}">Date</span>
+                            </div>
+                            <span th:if="${match.result.name() == 'DRAW'}" 
+                                  class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">
+                                DRAW
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div class="text-right">
+                                <a th:href="@{/members/{id}(id=${match.player1.id})}" 
+                                   class="font-medium hover:text-primary-600 dark:hover:text-primary-400"
+                                   th:classappend="${match.result.name() == 'PLAYER1_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'">
+                                    <span th:text="${match.player1.name}">Player 1</span>
+                                </a>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    Rank: <span th:text="${match.player1RankBefore}">1</span>
+                                    <span th:if="${match.player1RankAfter != match.player1RankBefore}">
+                                        → <span th:text="${match.player1RankAfter}" 
+                                                th:classappend="${match.player1RankAfter < match.player1RankBefore} ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">2</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-center flex items-center justify-center">
+                                <span class="font-bold text-gray-500 dark:text-gray-400">VS</span>
+                            </div>
+                            <div class="text-left">
+                                <a th:href="@{/members/{id}(id=${match.player2.id})}" 
+                                   class="font-medium hover:text-primary-600 dark:hover:text-primary-400"
+                                   th:classappend="${match.result.name() == 'PLAYER2_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'">
+                                    <span th:text="${match.player2.name}">Player 2</span>
+                                </a>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    Rank: <span th:text="${match.player2RankBefore}">2</span>
+                                    <span th:if="${match.player2RankAfter != match.player2RankBefore}">
+                                        → <span th:text="${match.player2RankAfter}"
+                                                th:classappend="${match.player2RankAfter < match.player2RankBefore} ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">1</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

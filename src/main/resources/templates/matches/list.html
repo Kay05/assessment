@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Matches</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Matches</h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">View and manage all chess matches</p>
+            </div>
+            <a th:href="@{/matches/new}" 
+               class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <i class="fas fa-chess-board mr-2"></i> Record New Match
+            </a>
+        </div>
+    </div>
+    
+    <!-- Matches List -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div th:if="${#lists.isEmpty(matches)}" class="p-8 text-center">
+            <i class="fas fa-chess text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-xl text-gray-500 dark:text-gray-400">No matches recorded yet</p>
+            <p class="mt-2 text-gray-400 dark:text-gray-500">Record your first match to see it here</p>
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(matches)}" class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Player 1
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Result
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Player 2
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Rank Changes
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr th:each="match : ${matches}" 
+                        class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            <span th:text="${#temporals.format(match.matchDate, 'MMM dd, yyyy')}">Date</span><br>
+                            <span class="text-xs" th:text="${#temporals.format(match.matchDate, 'HH:mm')}">Time</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a th:href="@{/members/{id}(id=${match.player1.id})}" 
+                               class="text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400"
+                               th:classappend="${match.result.name() == 'PLAYER1_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
+                                <span th:text="${match.player1.fullName}">Player 1</span>
+                            </a>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                Rank #<span th:text="${match.player1RankBefore}">1</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span th:if="${match.result.name() == 'PLAYER1_WIN'}" 
+                                  class="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded">
+                                <i class="fas fa-arrow-left"></i> WIN
+                            </span>
+                            <span th:if="${match.result.name() == 'PLAYER2_WIN'}" 
+                                  class="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded">
+                                WIN <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span th:if="${match.result.name() == 'DRAW'}" 
+                                  class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">
+                                DRAW
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a th:href="@{/members/{id}(id=${match.player2.id})}" 
+                               class="text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400"
+                               th:classappend="${match.result.name() == 'PLAYER2_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
+                                <span th:text="${match.player2.fullName}">Player 2</span>
+                            </a>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                Rank #<span th:text="${match.player2RankBefore}">2</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <div class="flex justify-center space-x-4">
+                                <div>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">P1:</span>
+                                    <span th:if="${match.player1RankAfter == match.player1RankBefore}" class="text-gray-500 dark:text-gray-400">-</span>
+                                    <span th:if="${match.player1RankAfter < match.player1RankBefore}" class="text-green-600 dark:text-green-400">
+                                        ↑<span th:text="${match.player1RankBefore - match.player1RankAfter}">1</span>
+                                    </span>
+                                    <span th:if="${match.player1RankAfter > match.player1RankBefore}" class="text-red-600 dark:text-red-400">
+                                        ↓<span th:text="${match.player1RankAfter - match.player1RankBefore}">1</span>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">P2:</span>
+                                    <span th:if="${match.player2RankAfter == match.player2RankBefore}" class="text-gray-500 dark:text-gray-400">-</span>
+                                    <span th:if="${match.player2RankAfter < match.player2RankBefore}" class="text-green-600 dark:text-green-400">
+                                        ↑<span th:text="${match.player2RankBefore - match.player2RankAfter}">1</span>
+                                    </span>
+                                    <span th:if="${match.player2RankAfter > match.player2RankBefore}" class="text-red-600 dark:text-red-400">
+                                        ↓<span th:text="${match.player2RankAfter - match.player2RankBefore}">1</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <a th:href="@{/matches/{id}(id=${match.id})}" 
+                                   class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                                   title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form th:action="@{/matches/{id}/delete(id=${match.id})}" method="post" 
+                                      class="inline" onsubmit="return confirm('Are you sure you want to delete this match? This will not reverse ranking changes.');">
+                                    <button type="submit" 
+                                            class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination Controls -->
+    <div th:if="${totalPages > 1}" class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            <!-- Previous Button -->
+            <a th:if="${hasPrevious}" 
+               th:href="@{/matches(page=${currentPage - 1}, size=${pageSize})}"
+               class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            
+            <!-- Page Numbers -->
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:if="${totalPages <= 10 or (i >= currentPage - 2 and i <= currentPage + 2)}">
+                <a th:if="${i != currentPage}" 
+                   th:href="@{/matches(page=${i}, size=${pageSize})}"
+                   th:text="${i + 1}"
+                   class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                </a>
+                <span th:if="${i == currentPage}" 
+                      th:text="${i + 1}"
+                      class="px-3 py-2 leading-tight text-primary-600 bg-primary-50 border border-primary-300 dark:bg-primary-900/50 dark:border-primary-600 dark:text-primary-300">
+                </span>
+            </span>
+            
+            <!-- Next Button -->
+            <a th:if="${hasNext}" 
+               th:href="@{/matches(page=${currentPage + 1}, size=${pageSize})}"
+               class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Page Size Selector and Info -->
+    <div class="mt-4 flex flex-col sm:flex-row justify-between items-center">
+        <div class="mb-4 sm:mb-0">
+            <label class="text-sm text-gray-600 dark:text-gray-400 mr-2">Items per page:</label>
+            <select onchange="updatePageSize(this.value)" 
+                    class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                <option th:value="10" th:selected="${pageSize == 10}">10</option>
+                <option th:value="25" th:selected="${pageSize == 25}">25</option>
+                <option th:value="50" th:selected="${pageSize == 50}">50</option>
+                <option th:value="100" th:selected="${pageSize == 100}">100</option>
+            </select>
+        </div>
+        
+        <div th:if="${totalElements > 0}" class="text-sm text-gray-500 dark:text-gray-400">
+            Showing <span th:text="${(currentPage * pageSize) + 1}">1</span> - 
+            <span th:text="${((currentPage + 1) * pageSize) < totalElements ? ((currentPage + 1) * pageSize) : totalElements}">10</span> 
+            of <span th:text="${totalElements}">100</span> matches
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePageSize(newSize) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('page', '0');
+    urlParams.set('size', newSize);
+    window.location.href = '/matches?' + urlParams.toString();
+}
+</script>
+</body>
+</html>

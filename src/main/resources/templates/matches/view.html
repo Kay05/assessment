@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Match Details</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Match Details</h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    Match played on <span th:text="${#temporals.format(match.matchDate, 'MMMM dd, yyyy')}">Date</span>
+                    at <span th:text="${#temporals.format(match.matchDate, 'HH:mm')}">Time</span>
+                </p>
+            </div>
+            <div class="flex space-x-2">
+                <a th:href="@{/matches}" 
+                   class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Matches
+                </a>
+                <form th:action="@{/matches/{id}/delete(id=${match.id})}" method="post" 
+                      class="inline" onsubmit="return confirm('Are you sure you want to delete this match? This will not reverse ranking changes.');">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Match Result Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            <!-- Player 1 -->
+            <div class="text-center md:text-right">
+                <div class="mb-4">
+                    <a th:href="@{/members/{id}(id=${match.player1.id})}" 
+                       class="text-2xl font-bold hover:text-primary-600 dark:hover:text-primary-400"
+                       th:classappend="${match.result.name() == 'PLAYER1_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
+                        <span th:text="${match.player1.fullName}">Player 1</span>
+                    </a>
+                    <div th:if="${match.result.name() == 'PLAYER1_WIN'}" class="mt-2">
+                        <i class="fas fa-trophy text-3xl text-green-500"></i>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Rank Before Match: <span class="font-bold" th:text="${match.player1RankBefore}">1</span>
+                    </div>
+                    <div class="text-sm">
+                        Rank After Match: 
+                        <span th:if="${match.player1RankAfter == match.player1RankBefore}" 
+                              class="font-bold text-gray-700 dark:text-gray-300" th:text="${match.player1RankAfter}">1</span>
+                        <span th:if="${match.player1RankAfter < match.player1RankBefore}" 
+                              class="font-bold text-green-600 dark:text-green-400">
+                            <span th:text="${match.player1RankAfter}">1</span> 
+                            <i class="fas fa-arrow-up ml-1"></i>
+                        </span>
+                        <span th:if="${match.player1RankAfter > match.player1RankBefore}" 
+                              class="font-bold text-red-600 dark:text-red-400">
+                            <span th:text="${match.player1RankAfter}">1</span> 
+                            <i class="fas fa-arrow-down ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Match Result -->
+            <div class="text-center">
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6">
+                    <div th:if="${match.result.name() == 'PLAYER1_WIN'}" class="text-green-600 dark:text-green-400">
+                        <i class="fas fa-trophy text-4xl mb-2"></i>
+                        <p class="text-xl font-bold">Player 1 Wins</p>
+                    </div>
+                    <div th:if="${match.result.name() == 'PLAYER2_WIN'}" class="text-green-600 dark:text-green-400">
+                        <i class="fas fa-trophy text-4xl mb-2"></i>
+                        <p class="text-xl font-bold">Player 2 Wins</p>
+                    </div>
+                    <div th:if="${match.result.name() == 'DRAW'}" class="text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-handshake text-4xl mb-2"></i>
+                        <p class="text-xl font-bold">Draw</p>
+                    </div>
+                </div>
+                
+                <!-- VS -->
+                <div class="my-4">
+                    <span class="text-3xl font-bold text-gray-400 dark:text-gray-500">VS</span>
+                </div>
+                
+                <!-- Match Date -->
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    <p th:text="${#temporals.format(match.matchDate, 'EEEE, MMMM dd, yyyy')}">Date</p>
+                    <p th:text="${#temporals.format(match.matchDate, 'HH:mm')}">Time</p>
+                </div>
+            </div>
+            
+            <!-- Player 2 -->
+            <div class="text-center md:text-left">
+                <div class="mb-4">
+                    <a th:href="@{/members/{id}(id=${match.player2.id})}" 
+                       class="text-2xl font-bold hover:text-primary-600 dark:hover:text-primary-400"
+                       th:classappend="${match.result.name() == 'PLAYER2_WIN'} ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
+                        <span th:text="${match.player2.fullName}">Player 2</span>
+                    </a>
+                    <div th:if="${match.result.name() == 'PLAYER2_WIN'}" class="mt-2">
+                        <i class="fas fa-trophy text-3xl text-green-500"></i>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Rank Before Match: <span class="font-bold" th:text="${match.player2RankBefore}">2</span>
+                    </div>
+                    <div class="text-sm">
+                        Rank After Match: 
+                        <span th:if="${match.player2RankAfter == match.player2RankBefore}" 
+                              class="font-bold text-gray-700 dark:text-gray-300" th:text="${match.player2RankAfter}">2</span>
+                        <span th:if="${match.player2RankAfter < match.player2RankBefore}" 
+                              class="font-bold text-green-600 dark:text-green-400">
+                            <span th:text="${match.player2RankAfter}">1</span> 
+                            <i class="fas fa-arrow-up ml-1"></i>
+                        </span>
+                        <span th:if="${match.player2RankAfter > match.player2RankBefore}" 
+                              class="font-bold text-red-600 dark:text-red-400">
+                            <span th:text="${match.player2RankAfter}">3</span> 
+                            <i class="fas fa-arrow-down ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Match Notes -->
+    <div th:if="${match.notes != null && !match.notes.isEmpty()}" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <i class="fas fa-sticky-note mr-2"></i> Match Notes
+        </h2>
+        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap" th:text="${match.notes}">
+            Match notes go here...
+        </p>
+    </div>
+    
+    <!-- Ranking Changes Explanation -->
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+        <h3 class="font-medium text-blue-900 dark:text-blue-300 mb-3">
+            <i class="fas fa-info-circle mr-2"></i> Ranking Changes Explained
+        </h3>
+        
+        <div th:if="${match.player1RankAfter == match.player1RankBefore && match.player2RankAfter == match.player2RankBefore}">
+            <p class="text-blue-700 dark:text-blue-400">
+                No ranking changes occurred because the higher-ranked player won or the players were adjacent in a draw.
+            </p>
+        </div>
+        
+        <div th:unless="${match.player1RankAfter == match.player1RankBefore && match.player2RankAfter == match.player2RankBefore}">
+            <div th:if="${match.result.name() == 'DRAW'}">
+                <p class="text-blue-700 dark:text-blue-400">
+                    In a draw between non-adjacent players, the lower-ranked player moves up one position.
+                </p>
+            </div>
+            
+            <div th:unless="${match.result.name() == 'DRAW'}">
+                <p class="text-blue-700 dark:text-blue-400">
+                    When a lower-ranked player beats a higher-ranked player:
+                </p>
+                <ul class="list-disc list-inside mt-2 text-blue-600 dark:text-blue-400">
+                    <li>The higher-ranked player moves down one position</li>
+                    <li>The lower-ranked player moves up by half the original rank difference</li>
+                    <li>Other players' ranks are adjusted to maintain sequential ranking</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

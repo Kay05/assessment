@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Record Match</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Record Match</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Record a new chess match and update rankings</p>
+    </div>
+    
+    <!-- Match Form -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <form th:action="@{/matches}" th:object="${matchDto}" method="post" class="space-y-6">
+            
+            <!-- Display validation errors -->
+            <div th:if="${#fields.hasGlobalErrors()}" 
+                 class="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+                <ul class="list-disc list-inside">
+                    <li th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</li>
+                </ul>
+            </div>
+            
+            <!-- Players Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Player 1 -->
+                <div>
+                    <label for="player1Id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Player 1 <span class="text-red-500">*</span>
+                    </label>
+                    <div class="searchable-select" data-target="player1Id">
+                        <input type="hidden" id="player1Id" th:field="*{player1Id}" required>
+                        <div class="relative">
+                            <input type="text" 
+                                   id="player1Search" 
+                                   class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                                   th:classappend="${#fields.hasErrors('player1Id')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                                   placeholder="Search and select Player 1..."
+                                   autocomplete="off"
+                                   readonly
+                                   onclick="toggleDropdown('player1')">
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            <div id="player1Dropdown" class="absolute z-50 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg hidden max-h-60 overflow-hidden">
+                                <div class="p-2 border-b border-gray-200 dark:border-gray-700">
+                                    <input type="text" 
+                                           id="player1Filter" 
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                                           placeholder="Type to filter players..."
+                                           oninput="filterOptions('player1')">
+                                </div>
+                                <div class="max-h-48 overflow-y-auto">
+                                    <div class="option hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 cursor-pointer text-gray-500 dark:text-gray-400" 
+                                         data-value="" 
+                                         data-text="Select Player 1"
+                                         data-player="player1"
+                                         onclick="selectOptionFromData(this)">
+                                        Select Player 1
+                                    </div>
+                                    <div th:each="member : ${members}" 
+                                         class="option hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 cursor-pointer" 
+                                         th:data-value="${member.id}"
+                                         th:data-text="${member.fullName + ' (Rank #' + member.currentRank + ')'}"
+                                         data-player="player1"
+                                         onclick="selectOptionFromData(this)"
+                                         th:text="${member.fullName + ' (Rank #' + member.currentRank + ')'}">
+                                        Member Name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p th:if="${#fields.hasErrors('player1Id')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{player1Id}">
+                        Player 1 error
+                    </p>
+                    <div id="player1Info" class="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hidden">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Current Rank: <span id="player1Rank" class="font-bold"></span></p>
+                    </div>
+                </div>
+                
+                <!-- Player 2 -->
+                <div>
+                    <label for="player2Id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Player 2 <span class="text-red-500">*</span>
+                    </label>
+                    <div class="searchable-select" data-target="player2Id">
+                        <input type="hidden" id="player2Id" th:field="*{player2Id}" required>
+                        <div class="relative">
+                            <input type="text" 
+                                   id="player2Search" 
+                                   class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                                   th:classappend="${#fields.hasErrors('player2Id')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                                   placeholder="Search and select Player 2..."
+                                   autocomplete="off"
+                                   readonly
+                                   onclick="toggleDropdown('player2')">
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            <div id="player2Dropdown" class="absolute z-50 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg hidden max-h-60 overflow-hidden">
+                                <div class="p-2 border-b border-gray-200 dark:border-gray-700">
+                                    <input type="text" 
+                                           id="player2Filter" 
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                                           placeholder="Type to filter players..."
+                                           oninput="filterOptions('player2')">
+                                </div>
+                                <div class="max-h-48 overflow-y-auto">
+                                    <div class="option hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 cursor-pointer text-gray-500 dark:text-gray-400" 
+                                         data-value="" 
+                                         data-text="Select Player 2"
+                                         data-player="player2"
+                                         onclick="selectOptionFromData(this)">
+                                        Select Player 2
+                                    </div>
+                                    <div th:each="member : ${members}" 
+                                         class="option hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 cursor-pointer" 
+                                         th:data-value="${member.id}"
+                                         th:data-text="${member.fullName + ' (Rank #' + member.currentRank + ')'}"
+                                         data-player="player2"
+                                         onclick="selectOptionFromData(this)"
+                                         th:text="${member.fullName + ' (Rank #' + member.currentRank + ')'}">
+                                        Member Name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p th:if="${#fields.hasErrors('player2Id')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{player2Id}">
+                        Player 2 error
+                    </p>
+                    <div id="player2Info" class="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hidden">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Current Rank: <span id="player2Rank" class="font-bold"></span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Match Result -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Match Result <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <input type="radio" th:field="*{result}" value="PLAYER1_WIN" class="sr-only" required>
+                        <div class="flex items-center justify-center w-full">
+                            <div class="text-center">
+                                <i class="fas fa-trophy text-2xl text-green-600 dark:text-green-400 mb-2"></i>
+                                <p class="font-medium text-gray-900 dark:text-white">Player 1 Wins</p>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 border-2 border-transparent rounded-lg pointer-events-none peer-checked:border-primary-500"></div>
+                    </label>
+                    
+                    <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <input type="radio" th:field="*{result}" value="DRAW" class="sr-only" required>
+                        <div class="flex items-center justify-center w-full">
+                            <div class="text-center">
+                                <i class="fas fa-handshake text-2xl text-gray-600 dark:text-gray-400 mb-2"></i>
+                                <p class="font-medium text-gray-900 dark:text-white">Draw</p>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 border-2 border-transparent rounded-lg pointer-events-none peer-checked:border-primary-500"></div>
+                    </label>
+                    
+                    <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <input type="radio" th:field="*{result}" value="PLAYER2_WIN" class="sr-only" required>
+                        <div class="flex items-center justify-center w-full">
+                            <div class="text-center">
+                                <i class="fas fa-trophy text-2xl text-green-600 dark:text-green-400 mb-2"></i>
+                                <p class="font-medium text-gray-900 dark:text-white">Player 2 Wins</p>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 border-2 border-transparent rounded-lg pointer-events-none peer-checked:border-primary-500"></div>
+                    </label>
+                </div>
+                <p th:if="${#fields.hasErrors('result')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{result}">
+                    Result error
+                </p>
+            </div>
+            
+            <!-- Match Date and Notes -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Match Date -->
+                <div>
+                    <label for="matchDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Match Date & Time
+                    </label>
+                    <input type="datetime-local" id="matchDate" th:field="*{matchDate}" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Leave blank to use current date and time
+                    </p>
+                </div>
+                
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Notes (Optional)
+                    </label>
+                    <textarea id="notes" th:field="*{notes}" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                              placeholder="Any additional notes about the match..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Ranking Rules Info -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h3 class="font-medium text-blue-900 dark:text-blue-300 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i> Ranking Rules
+                </h3>
+                <ul class="text-sm text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
+                    <li>If the higher-ranked player wins, no rank changes occur</li>
+                    <li>In a draw, the lower-ranked player gains one position (unless players are adjacent)</li>
+                    <li>If the lower-ranked player wins, they move up by half the rank difference, and the higher-ranked player moves down one position</li>
+                </ul>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a th:href="@{/matches}" 
+                   class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                    <i class="fas fa-save mr-2"></i> Record Match
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var members = /*[[${members}]]*/ [];
+        
+        function updatePlayerInfo() {
+            const player1Select = document.getElementById('player1Id');
+            const player2Select = document.getElementById('player2Id');
+            
+            // Update Player 1 info
+            if (player1Select.value) {
+                const player1 = members.find(m => m.id == player1Select.value);
+                if (player1) {
+                    document.getElementById('player1Rank').textContent = '#' + player1.currentRank;
+                    document.getElementById('player1Info').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('player1Info').classList.add('hidden');
+            }
+            
+            // Update Player 2 info
+            if (player2Select.value) {
+                const player2 = members.find(m => m.id == player2Select.value);
+                if (player2) {
+                    document.getElementById('player2Rank').textContent = '#' + player2.currentRank;
+                    document.getElementById('player2Info').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('player2Info').classList.add('hidden');
+            }
+            
+            // Validate that different players are selected
+            if (player1Select.value && player2Select.value && player1Select.value === player2Select.value) {
+                alert('Please select different players for the match');
+                selectOption('player2', '', 'Select Player 2');
+            }
+        }
+        
+        function toggleDropdown(player) {
+            const dropdown = document.getElementById(player + 'Dropdown');
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // Close all dropdowns first
+            document.getElementById('player1Dropdown').classList.add('hidden');
+            document.getElementById('player2Dropdown').classList.add('hidden');
+            
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                // Focus the filter input when dropdown opens
+                setTimeout(() => {
+                    document.getElementById(player + 'Filter').focus();
+                }, 100);
+            }
+        }
+        
+        function selectOption(player, value, text) {
+            const hiddenInput = document.getElementById(player + 'Id');
+            const searchInput = document.getElementById(player + 'Search');
+            const dropdown = document.getElementById(player + 'Dropdown');
+            
+            hiddenInput.value = value;
+            searchInput.value = text;
+            dropdown.classList.add('hidden');
+            
+            // Clear the filter
+            document.getElementById(player + 'Filter').value = '';
+            filterOptions(player);
+            
+            // Update player info
+            updatePlayerInfo();
+        }
+        
+        function selectOptionFromData(element) {
+            const player = element.getAttribute('data-player');
+            const value = element.getAttribute('data-value');
+            const text = element.getAttribute('data-text');
+            selectOption(player, value, text);
+        }
+        
+        function filterOptions(player) {
+            const filter = document.getElementById(player + 'Filter').value.toLowerCase();
+            const dropdown = document.getElementById(player + 'Dropdown');
+            const options = dropdown.querySelectorAll('.option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchableSelects = document.querySelectorAll('.searchable-select');
+            let isClickInside = false;
+            
+            searchableSelects.forEach(select => {
+                if (select.contains(event.target)) {
+                    isClickInside = true;
+                }
+            });
+            
+            if (!isClickInside) {
+                document.getElementById('player1Dropdown').classList.add('hidden');
+                document.getElementById('player2Dropdown').classList.add('hidden');
+            }
+        });
+        
+        // Style radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+                });
+                if (this.checked) {
+                    this.closest('label').classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

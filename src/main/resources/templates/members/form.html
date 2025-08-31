@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${isEdit} ? 'Edit Member' : 'New Member'">Member Form</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <span th:text="${isEdit} ? 'Edit Member' : 'New Member'">Member Form</span>
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">
+            <span th:text="${isEdit} ? 'Update member information' : 'Add a new member to the chess club'">Form description</span>
+        </p>
+    </div>
+    
+    <!-- Form -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <form th:action="${isEdit} ? @{/members/{id}(id=${member.id})} : @{/members}" 
+              th:object="${member}" method="post" class="space-y-6">
+              
+            <!-- Display validation errors -->
+            <div th:if="${#fields.hasGlobalErrors()}" 
+                 class="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+                <ul class="list-disc list-inside">
+                    <li th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</li>
+                </ul>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" th:field="*{name}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           th:classappend="${#fields.hasErrors('name')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                           placeholder="Enter first name" required>
+                    <p th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{name}">
+                        Name error
+                    </p>
+                </div>
+                
+                <!-- Surname -->
+                <div>
+                    <label for="surname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Surname <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="surname" th:field="*{surname}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           th:classappend="${#fields.hasErrors('surname')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                           placeholder="Enter surname" required>
+                    <p th:if="${#fields.hasErrors('surname')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{surname}">
+                        Surname error
+                    </p>
+                </div>
+                
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" id="email" th:field="*{email}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           th:classappend="${#fields.hasErrors('email')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                           placeholder="member@example.com" required>
+                    <p th:if="${#fields.hasErrors('email')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{email}">
+                        Email error
+                    </p>
+                </div>
+                
+                <!-- Birthday -->
+                <div>
+                    <label for="birthday" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Birthday <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="birthday" th:field="*{birthday}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           th:classappend="${#fields.hasErrors('birthday')} ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'"
+                           required>
+                    <p th:if="${#fields.hasErrors('birthday')}" class="mt-1 text-sm text-red-600 dark:text-red-400" th:errors="*{birthday}">
+                        Birthday error
+                    </p>
+                </div>
+                
+                <!-- Games Played (only show in edit mode) -->
+                <div th:if="${isEdit}">
+                    <label for="gamesPlayed" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Games Played
+                    </label>
+                    <input type="number" id="gamesPlayed" th:field="*{gamesPlayed}" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           min="0" readonly>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        This field is automatically updated when matches are recorded
+                    </p>
+                </div>
+                
+                <!-- Current Rank (only show in edit mode) -->
+                <div th:if="${isEdit}">
+                    <label for="currentRank" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Current Rank
+                    </label>
+                    <input type="number" id="currentRank" th:field="*{currentRank}" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                           min="1" readonly>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Rankings are automatically managed based on match results
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Hidden fields for edit mode -->
+            <input th:if="${isEdit}" type="hidden" th:field="*{id}">
+            <input th:if="${isEdit}" type="hidden" th:field="*{currentRank}">
+            <input th:if="${isEdit}" type="hidden" th:field="*{gamesPlayed}">
+            
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a th:href="@{/members}" 
+                   class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                    <i class="fas fa-save mr-2"></i>
+                    <span th:text="${isEdit} ? 'Update Member' : 'Create Member'">Submit</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
