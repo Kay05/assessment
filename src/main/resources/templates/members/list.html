@@ -179,7 +179,7 @@
     <div class="mt-4 flex flex-col sm:flex-row justify-between items-center">
         <div class="mb-4 sm:mb-0">
             <label class="text-sm text-gray-600 dark:text-gray-400 mr-2">Items per page:</label>
-            <select onchange="updatePageSize(this.value)" 
+            <select th:onchange="'window.location.href=\'/members?page=0&size=\' + this.value' + (${searchTerm} != null ? ' + \'&search=' + ${searchTerm} + '\'' : '')" 
                     class="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                 <option th:value="10" th:selected="${pageSize == 10}">10</option>
                 <option th:value="25" th:selected="${pageSize == 25}">25</option>
@@ -195,14 +195,5 @@
         </div>
     </div>
 </div>
-
-<script>
-function updatePageSize(newSize) {
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('page', '0');
-    urlParams.set('size', newSize);
-    window.location.href = '/members?' + urlParams.toString();
-}
-</script>
 </body>
 </html>
