@@ -84,6 +84,10 @@ CREATE DATABASE chess_club_db;
 - Username: `root`
 - Password: `rootpassword`
 
+**Seed Database:**
+- Provided `chess_club_db_members.sql` which can be used to populate your database (200 members)
+- Connect to database using preffered MySQL application and import members
+
 **Custom Configuration:**
 Update the database configuration in `src/main/resources/application.properties`:
 
