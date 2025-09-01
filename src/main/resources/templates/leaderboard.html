@@ -57,21 +57,21 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full"
-                                     th:classappend="${iterStat.index == 0} ? 'bg-yellow-200 dark:bg-yellow-900/50' : 
-                                                   (${iterStat.index == 1} ? 'bg-gray-200 dark:bg-gray-700' : 
-                                                   (${iterStat.index == 2} ? 'bg-orange-200 dark:bg-orange-900/50' : 
+                                     th:classappend="${iterStat.index == 0 && member.currentRank == 1} ? 'bg-yellow-200 dark:bg-yellow-900/50' : 
+                                                   (${iterStat.index == 1 && member.currentRank == 2} ? 'bg-gray-200 dark:bg-gray-700' : 
+                                                   (${iterStat.index == 2 && member.currentRank == 3} ? 'bg-orange-200 dark:bg-orange-900/50' : 
                                                    'bg-gray-100 dark:bg-gray-700'))">
                                     <span class="text-lg font-bold"
-                                          th:classappend="${iterStat.index == 0} ? 'text-yellow-700 dark:text-yellow-400' : 
-                                                        (${iterStat.index == 1} ? 'text-gray-700 dark:text-gray-400' : 
-                                                        (${iterStat.index == 2} ? 'text-orange-700 dark:text-orange-400' : 
+                                          th:classappend="${iterStat.index == 0 && member.currentRank == 1} ? 'text-yellow-700 dark:text-yellow-400' : 
+                                                        (${iterStat.index == 1 && member.currentRank == 2} ? 'text-gray-700 dark:text-gray-400' : 
+                                                        (${iterStat.index == 2 && member.currentRank == 3} ? 'text-orange-700 dark:text-orange-400' : 
                                                         'text-gray-600 dark:text-gray-400'))"
                                           th:text="${member.currentRank}">1</span>
                                 </div>
                                 <div class="ml-3">
-                                    <i th:if="${iterStat.index == 0}" class="fas fa-crown text-2xl text-yellow-500"></i>
-                                    <i th:if="${iterStat.index == 1}" class="fas fa-medal text-xl text-gray-400"></i>
-                                    <i th:if="${iterStat.index == 2}" class="fas fa-medal text-xl text-orange-500"></i>
+                                    <i th:if="${iterStat.index == 0 && member.currentRank == 1}" class="fas fa-crown text-2xl text-yellow-500"></i>
+                                    <i th:if="${iterStat.index == 1 && member.currentRank == 2}" class="fas fa-medal text-xl text-gray-400"></i>
+                                    <i th:if="${iterStat.index == 2 && member.currentRank == 3}" class="fas fa-medal text-xl text-orange-500"></i>
                                 </div>
                             </div>
                         </td>
@@ -159,20 +159,21 @@
     <div th:unless="${#lists.isEmpty(members)}" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
             <i class="fas fa-users text-3xl text-primary-600 dark:text-primary-400 mb-2"></i>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${#lists.size(members)}">0</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${totalMembersCount}">0</p>
             <p class="text-gray-600 dark:text-gray-400">Total Members</p>
         </div>
         
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
             <i class="fas fa-crown text-3xl text-yellow-500 mb-2"></i>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${members[0].fullName}">Champion</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white" 
+               th:text="${champion != null ? champion.fullName : 'No Champion'}">Champion</p>
             <p class="text-gray-600 dark:text-gray-400">Current Champion</p>
         </div>
         
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
             <i class="fas fa-gamepad text-3xl text-green-600 dark:text-green-400 mb-2"></i>
             <p class="text-2xl font-bold text-gray-900 dark:text-white" 
-               th:text="${members[0].gamesPlayed}">0</p>
+               th:text="${championGamesPlayed != null ? championGamesPlayed : 0}">0</p>
             <p class="text-gray-600 dark:text-gray-400">Champion's Games</p>
         </div>
     </div>

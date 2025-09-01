@@ -68,6 +68,15 @@ public class HomeController {
         model.addAttribute("hasNext", pageResult.hasNext());
         model.addAttribute("hasPrevious", pageResult.hasPrevious());
         
+        // Add overall statistics (not affected by pagination)
+        model.addAttribute("totalMembersCount", memberService.getAllMembers().size());
+        
+        // Get the actual champion (rank 1) from the database
+        memberService.getMemberByRank(1).ifPresent(champion -> {
+            model.addAttribute("champion", champion);
+            model.addAttribute("championGamesPlayed", champion.getGamesPlayed());
+        });
+        
         return "leaderboard";
     }
 }
